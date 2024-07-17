@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { Contract } from 'zksync-ethers';
+import { Contract } from 'zksync-ethers'; // TODO: fix this
 
 import { useAsync } from '../hooks/useAsync';
 import { useEthereum } from './Context';

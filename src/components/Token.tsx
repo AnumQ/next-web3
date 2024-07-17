@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-import { Contract } from 'zksync-ethers';
+import { Contract } from 'zksync-ethers'; // TODO: fix this
 
 import { useAsync } from '../hooks/useAsync';
 import { erc20ABI, daiContractConfig } from './contracts'
