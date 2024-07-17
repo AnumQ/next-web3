@@ -72,14 +72,13 @@ export const EthereumProvider = ({ children }: { children: React.ReactNode }) =>
   const [network, setNetwork] = useState<Chain | null>(null);
 
 
-  let ethereumContext: any; // Define the type appropriately
+  let ethereumContext: any; 
 
-    if (typeof window !== "undefined" && typeof window.ethereum !== "undefined") {
-      ethereumContext = window.ethereum;
-    } else {
-      // Handle the case where window.ethereum is not available
-      ethereumContext = null;
-    }
+  if (typeof window !== "undefined" && typeof window.ethereum !== "undefined") {
+    ethereumContext = window.ethereum;
+  } else {
+    ethereumContext = null;
+  }
 
   const onAccountChange = async (accounts: string[]) => {
     if (accounts.length > 0) {
