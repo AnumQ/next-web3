@@ -74,7 +74,6 @@ export const EthereumProvider = ({ children }: { children: React.ReactNode }) =>
   const ethereumContext = typeof window !== "undefined" ? window.ethereum : null;
 
   const onAccountChange = async (accounts: string[]) => {
-    alert('account changed')
     if (accounts.length > 0) {
       setAccount({
         isConnected: true,
