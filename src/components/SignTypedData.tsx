@@ -1,6 +1,6 @@
 'use client'
 
-import { ethers, type TypedDataField } from 'ethers';
+import { ethers, type TypedDataField } from 'ethers'; // TODO: fix this
 
 import { useAsync } from '../hooks/useAsync';
 import { defaultChain, useEthereum } from './Context';

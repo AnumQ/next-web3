@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-import { ethers } from 'ethers';
+import { ethers } from 'ethers'; // TODO: fix this
 
 import { useAsync } from '../hooks/useAsync';
 import { useEthereum } from './Context';

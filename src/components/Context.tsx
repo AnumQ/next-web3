@@ -1,6 +1,6 @@
 'use client';
-
-import { JsonRpcSigner } from 'ethers';
+// TODO: fix this
+import { JsonRpcSigner } from 'ethers'; // TODO: fix this
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { BrowserProvider } from 'zksync-ethers';
 
