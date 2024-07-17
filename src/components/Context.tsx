@@ -1,8 +1,9 @@
 'use client';
 // TODO: fix this
-import { JsonRpcSigner } from 'ethers'; // TODO: fix this
+// import { JsonRpcSigner } from 'ethers'; // TODO: fix this
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { BrowserProvider } from 'zksync-ethers'; // TODO: fix this
+// import { BrowserProvider } from 'zksync-ethers'; // TODO: fix this
+import  Web3 from "web3";
 
 type Chain = {
   id: number;
@@ -52,8 +53,7 @@ export const chains: Chain[] = [
     ),
 ];
 export const defaultChain = process.env.NODE_ENV === "development" ? zkSyncSepoliaTestnet : zkSync;
-
-let web3Provider: BrowserProvider | null = null;
+let web3Provider: Web3 | null = null;
 
 interface EthereumContextValue {
   account: { isConnected: true; address: string; } | { isConnected: false; address: null; };
@@ -61,8 +61,8 @@ interface EthereumContextValue {
   switchNetwork: (chainId: number) => Promise<void>;
   connect: () => void;
   disconnect: () => void;
-  getProvider: () => BrowserProvider | null;
-  getSigner: () => Promise<JsonRpcSigner | undefined>;
+  getProvider: () => Web3 | null;
+  // getSigner: () => Promise<JsonRpcSigner | undefined>; // TODO
 }
 
 const EthereumContext = createContext<EthereumContextValue | null>(null);
@@ -71,7 +71,15 @@ export const EthereumProvider = ({ children }: { children: React.ReactNode }) =>
   const [account, setAccount] = useState<{ isConnected: true; address: string; } | { isConnected: false; address: null; }>({ isConnected: false, address: null });
   const [network, setNetwork] = useState<Chain | null>(null);
 
-  const getEthereumContext = () => (window as any).ethereum;
+
+  let ethereumContext: any; // Define the type appropriately
+
+    if (typeof window !== "undefined" && typeof window.ethereum !== "undefined") {
+      ethereumContext = window.ethereum;
+    } else {
+      // Handle the case where window.ethereum is not available
+      ethereumContext = null;
+    }
 
   const onAccountChange = async (accounts: string[]) => {
     if (accounts.length > 0) {
@@ -82,27 +90,30 @@ export const EthereumProvider = ({ children }: { children: React.ReactNode }) =>
     } else {
       disconnect();
     }
-  }
+  };
 
-  const onNetworkChange = async (data: { chainId: BigInt; name: string }) => {
-    const chainId = parseInt(data.chainId.toString());
+  const onNetworkChange = async () => {
+    const chainId = ethereumContext.chainId;
     const currentChain = chains.find((chain: any) => chain.id === chainId);
     setNetwork(currentChain ?? { id: chainId, name: null, rpcUrl: null, unsupported: true });
-  }
+  };
 
   const connect = async () => {
-    if (!getEthereumContext()) throw new Error("No injected wallets found");
+    if (!ethereumContext) throw new Error("No injected wallets found");
 
-    web3Provider = new BrowserProvider((window as any).ethereum, "any");
-    const accounts = await web3Provider?.send("eth_requestAccounts", []);
-    if (accounts.length > 0) {
+    web3Provider = new Web3(ethereumContext);
+
+    try {
+      const accounts = await ethereumContext.request({ method: 'eth_requestAccounts' });
       onAccountChange(accounts);
-      getEthereumContext()?.on("accountsChanged", onAccountChange);
-      web3Provider?.on("network", onNetworkChange);
-    } else {
-      throw new Error("No accounts found");
+      ethereumContext.on("accountsChanged", onAccountChange);
+      ethereumContext.on("chainChanged", onNetworkChange);
+      onNetworkChange(); // Initial network setup
+    } catch (error) {
+      console.error('Failed to connect:', error);
+      throw new Error("Failed to connect to wallet");
     }
-  }
+  };
 
   const disconnect = () => {
     setAccount({
@@ -110,31 +121,30 @@ export const EthereumProvider = ({ children }: { children: React.ReactNode }) =>
       address: null,
     });
     setNetwork(null);
-    getEthereumContext()?.off("accountsChanged", onAccountChange);
-    web3Provider?.off("network", onNetworkChange);
-  }
+    ethereumContext.off("accountsChanged", onAccountChange);
+    ethereumContext.off("chainChanged", onNetworkChange);
+  };
 
   useEffect(() => {
     connect();
 
     return () => { // Clean-up on component unmount
       disconnect();
-    }
+    };
   }, []);
 
   const switchNetwork = async (chainId: number) => {
     const chain = chains.find((chain: any) => chain.id === chainId);
     if (!chain) throw new Error("Unsupported chain");
 
-    const hexChainId = "0x" + chain.id.toString(16);
     try {
-      await getEthereumContext()?.request({
+      await ethereumContext.request({
         method: "wallet_switchEthereumChain",
-        params: [{ chainId: hexChainId }],
+        params: [{ chainId: "0x" + chainId.toString(16) }],
       });
     } catch (error) {
       if ((error as any)?.code === 4902) { // 4902 - chain not added
-        getEthereumContext()?.request({
+        ethereumContext.request({
           method: "wallet_addEthereumChain",
           params: [{
             chainId: "0x" + chain.id.toString(16),
@@ -150,10 +160,9 @@ export const EthereumProvider = ({ children }: { children: React.ReactNode }) =>
         });
       }
     }
-  }
+  };
 
   const getProvider = () => web3Provider;
-  const getSigner = async () => await web3Provider?.getSigner();
 
   return (
     <EthereumContext.Provider value={{
@@ -163,12 +172,11 @@ export const EthereumProvider = ({ children }: { children: React.ReactNode }) =>
       connect,
       disconnect,
       getProvider,
-      getSigner
     }}>
       {children}
     </EthereumContext.Provider>
   );
-}
+};
 
 export const useEthereum = () => {
   const context = useContext(EthereumContext);
@@ -176,4 +184,4 @@ export const useEthereum = () => {
     throw new Error("useEthereum must be used within an EthereumProvider");
   }
   return context;
-}
+};
