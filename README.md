@@ -1,3 +1,4 @@
+TODO: fix this
 This is a [zkSync](https://zksync.io) + [ethers v6](https://docs.ethers.org/v6/) + [Next.js](https://nextjs.org) project bootstrapped with [`zksync-cli`](https://github.com/matter-labs/zksync-cli)
 
 # Getting Started
@@ -8,8 +9,10 @@ Once the webpage has loaded, changes made to files inside the `src/` directory (
 
 # Learn more
 
+TODO: fix this
 To learn more about [zkSync](https://zksync.io) or [ethers v6](https://docs.ethers.org/v6/), check out the following resources:
 
+TODO: fix this
 - [zkSync Documentation](https://era.zksync.io/docs/dev) – learn about zkSync features and API.
 - [ethers v6 Documentation](https://docs.ethers.org/v6/) – learn about Ethers v6 and API.
 - [Next.js Documentation](https://nextjs.org/docs) learn about Next.js features and API.
