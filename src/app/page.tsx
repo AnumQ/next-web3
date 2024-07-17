@@ -23,7 +23,7 @@ export default function Page() {
   
   return (
     <div>
-      <h1>zkSync + ethers + Next.js</h1>
+      <h1>Web3.js + Next.js</h1>
 
       <Connect />
 
